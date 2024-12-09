@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: k8s-client-ingress
+    # Аннотации позволяют настроить поведение
+    # ингресс-контроллера и, конечно, зависят от
+    # того, какой именно мы взяли — сейчас это nginx:
+  annotations:
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+  labels:
+    name: k8s-client-ingress
+spec:
+  rules:
+    # Правила роутинга представляют собой ровно то, loc
+    # что можно ожидать — хост, протокол, пути, на какой 
+    # сервис (и какой порт) перенаправить трафик: 
+  - host: k8s-client.localhost
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: k8s-client-service
+            port: 
+              number: 40000
