@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: psql-statefulset
+spec:
+  selector:
+    matchLabels:
+      app: psql-app
+  serviceName: psql-service
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: psql-app
+    spec:
+      containers:
+      - name: psql-container
+        image: postgres:16.4
+        ports:
+        - containerPort: 5432
+          name: psql-cli
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: psql-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: psql-secret
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+          - mountPath: "/var/lib/postgresql/data"
+            name: psql-data
+  volumeClaimTemplates:
+    - metadata:
+        name: psql-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Mi

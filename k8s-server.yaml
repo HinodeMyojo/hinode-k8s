@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-server-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: k8s-server
+  template:
+    metadata:
+      labels:
+        app: k8s-server
+    spec:
+      containers:
+      - name: k8s-server
+        image: hinodemyojo/k8s-server:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PSQL_STRING
+          valueFrom:
+            secretKeyRef:
+              name: psql-sql
+              key: PSQL_STRING
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-server-service
+spec:
+  selector:
+    app: k8s-server
+  ports:
+  - port: 8080
+    targetPort: 8080

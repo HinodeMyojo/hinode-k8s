@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Название деплоймента - данное имя станет основой так ждея и для ReplicaSets и pods
+  name: k8s-client-deployment
+spec:
+  # Кол-во ReplicaSet для деплоя
+  replicas: 3
+  selector:
+    matchLabels:
+      app: k8s-client
+  template:
+    metadata:
+      labels:
+        app: k8s-client
+    spec:
+      #указывает, что Pod запускает один контейнер, name который запускает образ image
+      containers:
+      - name: k8s-client
+        image: hinodemyojo/k8s-client:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80 
+        #Указываем env для подключения к бэкенду
+        env:
+        - name: VUE_DICK
+          value: "http://k8s-server.localhost"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-client-service
+spec:
+  type: NodePort
+  selector:
+    app: k8s-client
+  ports:
+  - protocol: TCP
+    port: 40000
+    targetPort: 80
